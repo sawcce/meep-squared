@@ -55,5 +55,5 @@ end
 # Same as before you only need to put the return value at the end with no return statement
 
 # With multiple arguments
-x, y -> 2x + y
+x, y -> 2 * x + y
 ```
