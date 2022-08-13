@@ -6,10 +6,12 @@ use nom::{
     IResult,
 };
 
-pub fn string(input: &str) -> IResult<&str, &str> {
+use super::statements::Statement::{self};
+
+pub fn string(input: &str) -> IResult<&str, Statement> {
     let esc = escaped(none_of("\\\""), '\\', tag("\""));
     let esc_or_empty = alt((esc, tag("")));
-    let res = delimited(tag("\""), esc_or_empty, tag("\""))(input)?;
+    let (remaining, res) = delimited(tag("\""), esc_or_empty, tag("\""))(input)?;
 
-    Ok(res)
+    Ok((remaining, Statement::String(String::from(res))))
 }

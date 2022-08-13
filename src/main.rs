@@ -1,5 +1,7 @@
 mod parsers;
-use parsers::variable::variable;
+use std::fs::read_to_string;
+
+use parsers::{statements::statements, variable::variable};
 
 use nom::{
     branch, bytes,
@@ -9,6 +11,8 @@ use nom::{
     sequence::{self, delimited},
     IResult,
 };
+
+use crate::parsers::args_list::args_list;
 
 pub type BoxError = std::boxed::Box<
     dyn std::error::Error // must implement Error to satisfy ?
@@ -21,12 +25,32 @@ struct Program {
 }
 
 fn main() -> std::result::Result<(), BoxError> {
-    let string = r#"hello = "wo\"rld""#;
-    println!("{string}");
-    let res = variable(string);
-    println!("{:?}", res);
+    let code = read_to_string("./programs/hello_world.msq")?;
+    let code = code.as_str();
 
+    let x = statements(&code).unwrap();
+    println!("{:?}", x.1);
     Ok(())
+}
+
+#[cfg(test)]
+pub mod Test {
+    use crate::parsers::args_list::args_list;
+
+    #[test]
+    pub fn arguments() {
+        let string = r#"a, b, c"#;
+        let res = args_list(string);
+        println!("{res:?}");
+
+        let string = r#"a"#;
+        let res = args_list(string);
+        println!("{res:?}");
+
+        let string = r#"_"#;
+        let res = args_list(string);
+        println!("{res:?}");
+    }
 }
 
 pub fn number(input: &str) -> IResult<&str, &str> {
