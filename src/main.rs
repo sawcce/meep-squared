@@ -1,18 +1,16 @@
 mod parsers;
 use std::fs::read_to_string;
 
-use parsers::{statements::statements, variable::variable};
-
 use nom::{
-    branch, bytes,
-    character::{self, complete::multispace0},
-    combinator::{self, value},
-    error::ParseError,
-    sequence::{self, delimited},
+    character::{self},
+    combinator::{self},
+    sequence::{self},
     IResult,
 };
 
-use crate::parsers::args_list::args_list;
+use crate::parsers::{
+    closure::closure, function_declaration::function_declaration, statements::statements,
+};
 
 pub type BoxError = std::boxed::Box<
     dyn std::error::Error // must implement Error to satisfy ?
@@ -20,21 +18,18 @@ pub type BoxError = std::boxed::Box<
         + std::marker::Sync, // needed for threads
 >;
 
-struct Program {
-    name: String,
-}
-
 fn main() -> std::result::Result<(), BoxError> {
     let code = read_to_string("./programs/hello_world.msq")?;
     let code = code.as_str();
 
-    let x = statements(&code).unwrap();
+    let x = statements(code).unwrap();
+    println!("{:?}", x.0);
     println!("{:?}", x.1);
     Ok(())
 }
 
 #[cfg(test)]
-pub mod Test {
+pub mod test {
     use crate::parsers::args_list::args_list;
 
     #[test]
@@ -65,10 +60,6 @@ pub fn number(input: &str) -> IResult<&str, &str> {
         )),
         |_| "0",
     )(input)
-}
-
-fn not_whitespace(i: &str) -> IResult<&str, &str> {
-    nom::bytes::complete::is_not(" \t")(i)
 }
 
 /*"

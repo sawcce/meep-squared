@@ -1,21 +1,17 @@
 use crate::parsers::args_list::args_list;
 use nom::{
     branch::alt,
-    bytes::complete::{tag, tag_no_case},
-    combinator::opt,
+    bytes::complete::{tag, tag_no_case, take},
+    character::complete::char,
     IResult,
 };
 
 use super::{
-    statements::{statement, statements, Statement, Statements},
+    statements::{statement, statements, Statements},
     ws::ws,
 };
 
-pub fn underscore(i: &str) -> IResult<&str, &str> {
-    nom::bytes::complete::tag("_")(i)
-}
-
-fn one_statement(i: &'static str) -> IResult<&str, Statements> {
+fn one_statement(i: &str) -> IResult<&str, Statements> {
     let (remaining, statement) = statement(i)?;
     Ok((
         remaining,
@@ -25,16 +21,22 @@ fn one_statement(i: &'static str) -> IResult<&str, Statements> {
     ))
 }
 
-fn multiple_statements(i: &'static str) -> IResult<&str, Statements> {
+fn multiple_statements(i: &str) -> IResult<&str, Statements> {
     let (remaining, statements) = ws(statements)(i)?;
     ws(tag("end"))(i)?;
     Ok((remaining, statements))
 }
 
-pub fn closure(i: &'static str) -> IResult<&str, Statements> {
-    let (remaining, arguments) = args_list(i)?;
-    ws(tag_no_case("->"))(remaining)?;
+#[derive(Debug)]
+pub struct Closure {
+    pub arguments: Vec<String>,
+    pub body: Statements,
+}
+
+pub fn closure(i: &str) -> IResult<&str, Closure> {
+    let (remaining, arguments) = ws(args_list)(i)?;
+    let (remaining, _) = ws(tag("->"))(remaining)?;
     let (remaining, body) = alt((one_statement, multiple_statements))(remaining)?;
 
-    Ok((remaining, body))
+    Ok((remaining, Closure { arguments, body }))
 }

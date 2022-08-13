@@ -1,7 +1,9 @@
 use nom::{branch::alt, multi::many0, IResult};
 
 use super::{
+    closure::Closure,
     function_call::{function_call, FunctionCall},
+    function_declaration::{function_declaration, FunctionDeclaration},
     variable::{variable, Assignement},
     ws::ws,
 };
@@ -15,13 +17,14 @@ pub struct Statements {
 pub enum Statement {
     Assignement(Assignement),
     FunctionCall(FunctionCall),
+    FunctionDeclaration(FunctionDeclaration),
     String(String),
-    Tuple(),
-    Closure(),
+    Closure(Closure),
+    Variable(String),
 }
 
 pub fn statement(i: &str) -> IResult<&str, Statement> {
-    alt((variable, function_call))(i)
+    alt((function_declaration, variable, function_call))(i)
 }
 
 pub fn statements(i: &str) -> IResult<&str, Statements> {
