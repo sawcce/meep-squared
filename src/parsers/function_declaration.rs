@@ -7,7 +7,7 @@ use super::{
     ws::ws,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct FunctionDeclaration {
     pub name: String,
     pub closure: Closure,

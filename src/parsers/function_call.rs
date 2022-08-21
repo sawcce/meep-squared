@@ -2,7 +2,7 @@ use nom::{bytes::complete::tag, sequence::delimited, IResult};
 
 use super::{args_list::call_list, identifier::identifier, statements::Statement, ws::ws};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct FunctionCall {
     name: String,
     arguments: Vec<Statement>,

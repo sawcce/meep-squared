@@ -8,3 +8,9 @@ edition = "2021"
 [dependencies]
 dashmap="*"
 nom="7"
+
+[dependencies.uuid]
+version="1.1.2"
+features = [
+    "v4"
+]

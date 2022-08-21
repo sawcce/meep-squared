@@ -1,4 +1,6 @@
+mod interpreter;
 mod parsers;
+
 use std::fs::read_to_string;
 
 use nom::{
@@ -7,24 +9,18 @@ use nom::{
     sequence::{self},
     IResult,
 };
-
-use crate::parsers::{
-    closure::closure, function_declaration::function_declaration, statements::statements,
-};
+use parsers::program::program;
 
 pub type BoxError = std::boxed::Box<
-    dyn std::error::Error // must implement Error to satisfy ?
-        + std::marker::Send // needed for threads
-        + std::marker::Sync, // needed for threads
+    dyn std::error::Error, // must implement Error to satisfy ?
+                           // + std::marker::Send // needed for threads
+                           // + std::marker::Sync, // needed for threads
 >;
 
 fn main() -> std::result::Result<(), BoxError> {
     let code = read_to_string("./programs/hello_world.msq")?;
-    let code = code.as_str();
 
-    let x = statements(code).unwrap();
-    println!("{:?}", x.0);
-    println!("{:?}", x.1);
+    let (_, prog) = program(&(code.clone()))?;
     Ok(())
 }
 

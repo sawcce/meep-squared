@@ -1,20 +1,33 @@
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Assignement {
-    name: String,
-    value: Box<Statement>,
+    pub name: String,
+    pub declaration: bool,
+    pub id: Option<String>,
+    pub value: Box<Statement>,
 }
 
-use nom::{self, IResult};
+use nom::combinator::opt;
+use nom::{self, bytes::complete::tag, IResult};
 
 use crate::parsers::identifier::identifier;
-use crate::parsers::string::string;
 use crate::parsers::ws::ws;
+use uuid::Uuid;
 
 use super::statements::Statement;
 use super::value::value;
 
 pub fn variable(i: &str) -> IResult<&str, Statement> {
-    let (remaining, name) = identifier(i)?;
+    let is_declaration = false;
+    let id = None;
+
+    let (remaining, result) = opt(ws(tag("let")))(i)?;
+
+    if result.is_some() {
+        is_declaration = true;
+        id = Some(Uuid::new_v4().to_string());
+    }
+
+    let (remaining, name) = identifier(remaining)?;
     let (remaining, _) = ws(equals)(remaining)?;
     let (remaining, value) = value(remaining)?;
 
@@ -24,6 +37,8 @@ pub fn variable(i: &str) -> IResult<&str, Statement> {
         remaining,
         Statement::Assignement(Assignement {
             name,
+            id,
+            declaration: is_declaration,
             value: Box::new(value),
         }),
     ))

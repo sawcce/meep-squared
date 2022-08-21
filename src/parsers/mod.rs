@@ -3,6 +3,7 @@ pub mod closure;
 mod function_call;
 pub mod function_declaration;
 pub mod identifier;
+pub mod program;
 pub mod statements;
 pub mod string;
 mod value;

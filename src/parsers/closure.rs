@@ -27,7 +27,7 @@ fn multiple_statements(i: &str) -> IResult<&str, Statements> {
     Ok((remaining, statements))
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Closure {
     pub arguments: Vec<String>,
     pub body: Statements,

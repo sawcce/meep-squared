@@ -8,12 +8,12 @@ use super::{
     ws::ws,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Statements {
     pub body: Vec<Statement>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Statement {
     Assignement(Assignement),
     FunctionCall(FunctionCall),
