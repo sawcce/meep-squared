@@ -17,10 +17,12 @@ use super::statements::Statement;
 use super::value::value;
 
 pub fn variable(i: &str) -> IResult<&str, Statement> {
-    let is_declaration = false;
-    let id = None;
+    let mut is_declaration = false;
+    let mut id = None;
 
+    println!("var");
     let (remaining, result) = opt(ws(tag("let")))(i)?;
+    println!("var 2");
 
     if result.is_some() {
         is_declaration = true;
@@ -29,7 +31,9 @@ pub fn variable(i: &str) -> IResult<&str, Statement> {
 
     let (remaining, name) = identifier(remaining)?;
     let (remaining, _) = ws(equals)(remaining)?;
+    println!("eq");
     let (remaining, value) = value(remaining)?;
+    println!("val, {remaining}");
 
     let name = name.to_string();
 

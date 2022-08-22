@@ -36,7 +36,7 @@ pub struct Closure {
 pub fn closure(i: &str) -> IResult<&str, Closure> {
     let (remaining, arguments) = ws(args_list)(i)?;
     let (remaining, _) = ws(tag("->"))(remaining)?;
-    let (remaining, body) = alt((one_statement, multiple_statements))(remaining)?;
+    let (remaining, body) = /*alt((*/multiple_statements/*, one_statement))*/(remaining)?;
 
     Ok((remaining, Closure { arguments, body }))
 }

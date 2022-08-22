@@ -1,27 +1,38 @@
-mod interpreter;
+//mod interpreter;
 mod parsers;
 
-use std::fs::read_to_string;
+use std::{fs::read_to_string, sync::Arc};
 
 use nom::{
     character::{self},
     combinator::{self},
+    error::{convert_error, VerboseError},
     sequence::{self},
     IResult,
 };
 use parsers::program::program;
 
-pub type BoxError = std::boxed::Box<
-    dyn std::error::Error, // must implement Error to satisfy ?
-                           // + std::marker::Send // needed for threads
-                           // + std::marker::Sync, // needed for threads
+pub type BoxError<'a> = Box<
+    dyn std::error::Error // must implement Error to satisfy ?
+        + 'a, // + std::marker::Send // needed for threads
+              // + std::marker::Sync, // needed for threads
 >;
 
-fn main() -> std::result::Result<(), BoxError> {
-    let code = read_to_string("./programs/hello_world.msq")?;
+fn main() {
+    let code = read_to_string("./programs/hello_world.msq").unwrap();
+    println!("{code}");
 
-    let (_, prog) = program(&(code.clone()))?;
-    Ok(())
+    let prog = program::<VerboseError<&str>>(&(code.clone()));
+
+    match prog {
+        Ok(program_) => {
+            println!("{program_:?}")
+        }
+        Err(err) => {
+            let a = convert_error(code.clone(), err);
+            println!("{a}");
+        }
+    }
 }
 
 #[cfg(test)]
