@@ -11,7 +11,6 @@ struct Variable {
 #[derive(Debug, Clone)]
 struct Scope {
     values: DashMap<String, String>,
-    parent: Option<Rc<Scope>>,
 }
 
 #[derive(Debug, Clone)]
@@ -31,23 +30,22 @@ enum Instruction {
 
 #[derive(Clone, Debug)]
 pub struct Compiler {
-    scope: Scope,
+    scope: Vec<Scope>,
     instructions: Vec<Instruction>,
 }
 
 impl Compiler {
     pub fn new() -> Self {
         Self {
-            scope: Scope {
+            scope: vec![Scope {
                 values: DashMap::new(),
-                parent: None,
-            },
+            }],
             instructions: Vec::new(),
         }
     }
 
     pub fn compile(&mut self, code: &str) {
-        let (_, statements) = statements(code).unwrap();
+        let (_, statements) = program(code).unwrap();
     }
 
     fn eval(self, statement: Statement) -> Value {
