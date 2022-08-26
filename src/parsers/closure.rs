@@ -3,6 +3,7 @@ use nom::{
     branch::alt,
     bytes::complete::{tag, tag_no_case, take},
     character::complete::char,
+    error::VerboseError,
     IResult,
 };
 
@@ -11,7 +12,7 @@ use super::{
     ws::ws,
 };
 
-fn one_statement(i: &str) -> IResult<&str, Statements> {
+fn one_statement(i: &str) -> IResult<&str, Statements, VerboseError<&str>> {
     let (remaining, statement) = statement(i)?;
     Ok((
         remaining,
@@ -21,9 +22,9 @@ fn one_statement(i: &str) -> IResult<&str, Statements> {
     ))
 }
 
-fn multiple_statements(i: &str) -> IResult<&str, Statements> {
-    let (remaining, statements) = ws(statements)(i)?;
-    ws(tag("end"))(i)?;
+fn multiple_statements(i: &str) -> IResult<&str, Statements, VerboseError<&str>> {
+    let (remaining, statements) = statements(i)?;
+    ws(tag("end"))(remaining)?;
     Ok((remaining, statements))
 }
 
@@ -33,10 +34,11 @@ pub struct Closure {
     pub body: Statements,
 }
 
-pub fn closure(i: &str) -> IResult<&str, Closure> {
+pub fn closure(i: &str) -> IResult<&str, Closure, VerboseError<&str>> {
     let (remaining, arguments) = ws(args_list)(i)?;
     let (remaining, _) = ws(tag("->"))(remaining)?;
-    let (remaining, body) = /*alt((*/multiple_statements/*, one_statement))*/(remaining)?;
+    //let (remaining, body) = multiple_statements(remaining)?;
+    let (remaining, body) = alt((multiple_statements, one_statement))(remaining)?;
 
     Ok((remaining, Closure { arguments, body }))
 }

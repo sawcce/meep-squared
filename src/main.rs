@@ -1,16 +1,18 @@
-//mod interpreter;
+mod interpreter;
 mod parsers;
 
-use std::{fs::read_to_string, sync::Arc};
+use interpreter::Compiler;
+
+use parsers::program::program;
+use std::fs::read_to_string;
 
 use nom::{
     character::{self},
     combinator::{self},
-    error::{convert_error, VerboseError},
+    error::convert_error,
     sequence::{self},
-    IResult,
+    Finish, IResult,
 };
-use parsers::program::program;
 
 pub type BoxError<'a> = Box<
     dyn std::error::Error // must implement Error to satisfy ?
@@ -19,20 +21,18 @@ pub type BoxError<'a> = Box<
 >;
 
 fn main() {
+    /*    let code = String::from("_ -> let a = b end");
+    let x = closure(&code).unwrap();
+    println!("{x:?}"); */
+
     let code = read_to_string("./programs/hello_world.msq").unwrap();
     println!("{code}");
 
-    let prog = program::<VerboseError<&str>>(&(code.clone()));
+    let code = code.clone();
+    let code = &code;
 
-    match prog {
-        Ok(program_) => {
-            println!("{program_:?}")
-        }
-        Err(err) => {
-            let a = convert_error(code.clone(), err);
-            println!("{a}");
-        }
-    }
+    let mut compiler = Compiler::new();
+    compiler.compile(code);
 }
 
 #[cfg(test)]

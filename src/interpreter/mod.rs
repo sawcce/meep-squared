@@ -1,8 +1,12 @@
 use std::rc::Rc;
 
 use dashmap::DashMap;
+use nom::Finish;
 
-use crate::parsers::statements::{statements, Statement};
+use crate::parsers::{
+    program::program,
+    statements::{statements, Statement, Statements},
+};
 
 struct Variable {
     id: String,
@@ -23,6 +27,7 @@ type Id = String;
 
 #[derive(Clone, Debug)]
 enum Instruction {
+    Test(String),
     VariableAssignement(Id, Value),
     PopVariable(Id),
     ExecuteFunction(Id, Vec<Value>),
@@ -45,7 +50,44 @@ impl Compiler {
     }
 
     pub fn compile(&mut self, code: &str) {
-        let (_, statements) = program(code).unwrap();
+        let result = program(code);
+
+        if result.clone().is_err() {
+            let x = result.finish().err().unwrap();
+            return;
+        }
+
+        let result_program = result.unwrap();
+        println!("{:?}", result_program.clone().1.statements);
+        self.generate_instruction(result_program.1.statements);
+        println!("Instructions: {:?}", self.instructions);
+    }
+
+    fn generate_instruction(&mut self, statements: Statements) {
+        for statement in statements.body.into_iter() {
+            match statement {
+                Statement::FunctionDeclaration(decl) => {
+                    self.instructions.push(Instruction::Test(format!(
+                        "Function Declaration: {}",
+                        decl.name
+                    )));
+                    self.generate_instruction(decl.closure.body);
+                    self.instructions.push(Instruction::Test(format!(
+                        "End Function Declaration: {}",
+                        decl.name
+                    )));
+                }
+                Statement::Assignement(var) => self.instructions.push(Instruction::Test(format!(
+                    "Var: {}, Val: {:?}",
+                    var.name, var.value
+                ))),
+                Statement::FunctionCall(fc) => self.instructions.push(Instruction::Test(format!(
+                    "Function Call, Name: {}, Args: {:?}",
+                    fc.name, fc.arguments
+                ))),
+                _ => {}
+            }
+        }
     }
 
     fn eval(self, statement: Statement) -> Value {

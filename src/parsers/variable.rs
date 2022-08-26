@@ -7,6 +7,7 @@ pub struct Assignement {
 }
 
 use nom::combinator::opt;
+use nom::error::VerboseError;
 use nom::{self, bytes::complete::tag, IResult};
 
 use crate::parsers::identifier::identifier;
@@ -16,13 +17,11 @@ use uuid::Uuid;
 use super::statements::Statement;
 use super::value::value;
 
-pub fn variable(i: &str) -> IResult<&str, Statement> {
+pub fn variable(i: &str) -> IResult<&str, Statement, VerboseError<&str>> {
     let mut is_declaration = false;
     let mut id = None;
 
-    println!("var");
     let (remaining, result) = opt(ws(tag("let")))(i)?;
-    println!("var 2");
 
     if result.is_some() {
         is_declaration = true;
@@ -31,9 +30,7 @@ pub fn variable(i: &str) -> IResult<&str, Statement> {
 
     let (remaining, name) = identifier(remaining)?;
     let (remaining, _) = ws(equals)(remaining)?;
-    println!("eq");
     let (remaining, value) = value(remaining)?;
-    println!("val, {remaining}");
 
     let name = name.to_string();
 
@@ -48,6 +45,6 @@ pub fn variable(i: &str) -> IResult<&str, Statement> {
     ))
 }
 
-fn equals(i: &str) -> IResult<&str, char> {
+fn equals(i: &str) -> IResult<&str, char, VerboseError<&str>> {
     nom::character::complete::char('=')(i)
 }

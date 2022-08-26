@@ -1,4 +1,7 @@
-use nom::{error::ParseError, IResult};
+use nom::{
+    error::{ParseError, VerboseError},
+    IResult, Parser,
+};
 
 use super::{
     closure::{closure, Closure},
@@ -13,7 +16,7 @@ pub struct FunctionDeclaration {
     pub closure: Closure,
 }
 
-pub fn function_declaration<E: ParseError<&str>>(i: &str) -> IResult<&str, Statement, E> {
+pub fn function_declaration<'a>(i: &'a str) -> IResult<&str, Statement, VerboseError<&str>> {
     let (remaining, name) = ws(identifier)(i)?;
     let (remaining, closure) = ws(closure)(remaining)?;
     Ok((

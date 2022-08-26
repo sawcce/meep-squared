@@ -7,20 +7,19 @@ use crate::{parsers::function_declaration::function_declaration, BoxError};
 use super::{
     function_declaration::FunctionDeclaration,
     statements::{statements, Statement, Statements},
-    ws::ws,
 };
 
 #[derive(Debug, Clone)]
 pub struct Program {
     functions: Vec<FunctionDeclaration>,
-    statements: Statements,
+    pub statements: Statements,
 }
 
 pub fn end_of_file(i: &str) -> IResult<&str, &str> {
     eof(i)
 }
 
-pub fn program<'a>(i: &'a str) -> Result<Program, VerboseError<&str>> {
+pub fn program<'a>(i: &'a str) -> IResult<&'a str, Program, VerboseError<&str>> {
     //let i = i.clone().as_str();
     let mut program = Program {
         functions: Vec::new(),
@@ -28,9 +27,10 @@ pub fn program<'a>(i: &'a str) -> Result<Program, VerboseError<&str>> {
     };
 
     println!("Input {i}");
-    let (remaining, statements) = function_declaration(i)?;
+    let (remaining, mut statements) = statements(i)?;
     println!("Result: {statements:?}");
     println!("Rem: {remaining}");
+    program.statements.body.append(&mut statements.body);
     //end_of_file(remaining)?;
 
     /*let functions = statements
@@ -45,5 +45,5 @@ pub fn program<'a>(i: &'a str) -> Result<Program, VerboseError<&str>> {
         _ => {}
     });*/
 
-    Ok(program)
+    Ok((remaining, program))
 }

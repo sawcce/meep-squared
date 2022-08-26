@@ -1,4 +1,4 @@
-use nom::{branch::alt, multi::many0, IResult};
+use nom::{branch::alt, error::VerboseError, multi::many0, IResult};
 
 use super::{
     closure::Closure,
@@ -23,11 +23,11 @@ pub enum Statement {
     Variable(String),
 }
 
-pub fn statement(i: &str) -> IResult<&str, Statement> {
+pub fn statement(i: &str) -> IResult<&str, Statement, VerboseError<&str>> {
     alt((function_declaration, variable, function_call))(i)
 }
 
-pub fn statements(i: &str) -> IResult<&str, Statements> {
+pub fn statements(i: &str) -> IResult<&str, Statements, VerboseError<&str>> {
     let (remaining, list) = many0(ws(statement))(i)?;
     Ok((remaining, Statements { body: list }))
 }
