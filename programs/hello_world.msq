@@ -1,4 +1,18 @@
+get_age -> 
+    print("Getting age!")
+    return 16
+end
+
 main ->
     let name = "Sawcce"
+    mut age = get_age()
+
     print("Hello ", name, "!")
+    print(name, " is ", age, " years old")
+
+    age = add(get_age(), 1)
+
+    print(name, " is ", age, " years old")
+
 end
+
