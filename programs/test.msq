@@ -1,0 +1,12 @@
+mut counter = 0
+
+recursive ->
+    counter = add(counter, 1)
+    print(counter)
+    recursive()
+end
+
+main ->
+    recursive()
+end
+

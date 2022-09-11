@@ -23,8 +23,8 @@ fn one_statement(i: &str) -> IResult<&str, Statements, VerboseError<&str>> {
 }
 
 fn multiple_statements(i: &str) -> IResult<&str, Statements, VerboseError<&str>> {
-    let (remaining, statements) = statements(i)?;
-    ws(tag("end"))(remaining)?;
+    let (remaining, statements) = ws(statements)(i)?;
+    let (remaining, _) = ws(tag("end"))(remaining)?;
     Ok((remaining, statements))
 }
 
@@ -37,8 +37,8 @@ pub struct Closure {
 pub fn closure(i: &str) -> IResult<&str, Closure, VerboseError<&str>> {
     let (remaining, arguments) = ws(args_list)(i)?;
     let (remaining, _) = ws(tag("->"))(remaining)?;
-    //let (remaining, body) = multiple_statements(remaining)?;
-    let (remaining, body) = alt((multiple_statements, one_statement))(remaining)?;
+    let (remaining, body) = multiple_statements(remaining)?;
+    //let (remaining, body) = /*alt((*/multiple_statements/*, one_statement))*/(remaining)?;
 
     Ok((remaining, Closure { arguments, body }))
 }

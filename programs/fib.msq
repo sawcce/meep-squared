@@ -1,0 +1,22 @@
+fib n ->
+    if equals(n, 0) ->
+        return 0
+    end
+
+    if equals(n, 1) ->
+        return 1
+    end
+
+    return add(
+        fib(add(n, -1)),
+        fib(add(n, -2))
+    )
+end
+
+
+main ->
+    let a = fib(9)
+    print(a)
+end
+    
+

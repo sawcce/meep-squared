@@ -2,17 +2,14 @@ mod interpreter;
 mod parsers;
 
 use interpreter::Compiler;
+use interpreter::Engine;
 
-use parsers::program::program;
+use std::collections::HashMap;
 use std::fs::read_to_string;
 
-use nom::{
-    character::{self},
-    combinator::{self},
-    error::convert_error,
-    sequence::{self},
-    Finish, IResult,
-};
+use nom::{character, combinator, sequence, IResult};
+
+use crate::parsers::conditional::conditional_statement;
 
 pub type BoxError<'a> = Box<
     dyn std::error::Error // must implement Error to satisfy ?
@@ -24,15 +21,24 @@ fn main() {
     /*    let code = String::from("_ -> let a = b end");
     let x = closure(&code).unwrap();
     println!("{x:?}"); */
+    let code = "if a -> end";
+    conditional_statement(code).unwrap();
 
-    let code = read_to_string("./programs/hello_world.msq").unwrap();
-    println!("{code}");
+    let code = read_to_string("./programs/fib.msq").unwrap();
 
     let code = code.clone();
     let code = &code;
 
-    let mut compiler = Compiler::new();
+    println!("{code}");
+
+    let scope = &mut vec![HashMap::new()];
+    let mut compiler = Compiler::new(scope);
     compiler.compile(code);
+    // println!("{:#?}", compiler.instructions.clone());
+
+    let mut engine = Engine::new();
+    engine.execute_program(compiler.instructions);
+    engine.shout_memory();
 }
 
 #[cfg(test)]

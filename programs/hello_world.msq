@@ -10,7 +10,11 @@ main ->
     print("Hello ", name, "!")
     print(name, " is ", age, " years old")
 
+    print(age, " ", 17, " ", equals(age, 17))
+
     age = add(get_age(), 1)
+
+    print(age, " ", 17, " ", equals(age, 17))
 
     print(name, " is ", age, " years old")
 

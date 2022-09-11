@@ -1,9 +1,14 @@
 pub mod args_list;
+pub mod boolean;
 pub mod closure;
+pub mod conditional;
 mod function_call;
 pub mod function_declaration;
 pub mod identifier;
+pub mod number;
+pub mod operations;
 pub mod program;
+pub mod return_statement;
 pub mod statements;
 pub mod string;
 mod value;
